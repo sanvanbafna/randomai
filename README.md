@@ -5,7 +5,7 @@ The public website for Random AI and the Random Trading App. Plain HTML and CSS,
 ```
 index.html            home and contact
 random-ai/index.html  Random AI (accounting software)
-trading/index.html    Random Trading App (sign-in link goes to app.DOMAIN)
+trading/index.html    Random Trading App
 assets/               stylesheet, logo and pictures
 deploy/               nginx config for the Lightsail server
 ```
