@@ -90,4 +90,6 @@ footer a{color:var(--muted);margin-left:16px}
 .tm-note{flex-basis:100%;font-size:12px;margin-top:4px}
 @media (max-width:900px){.timeline{grid-template-columns:1fr}}
 .tm{font-size:.5em;line-height:0;vertical-align:super;margin-left:1px;font-weight:600}
-.brand .tm,.btn .tm{margin-left:-9px}
+.brand .logo{height:30px;width:auto}
+.logo-foot{height:22px;width:auto;flex-basis:100%;max-width:74px}
+.logo-big{width:min(280px,80%);height:auto;margin-top:28px}
