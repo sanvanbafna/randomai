@@ -84,3 +84,12 @@ footer a{color:var(--muted);margin-left:16px}
 @media (max-width:900px){.features.three{grid-template-columns:1fr 1fr}.then-now{grid-template-columns:1fr}}
 @media (max-width:560px){.features.three{grid-template-columns:1fr}}
 
+.story p{color:var(--muted);font-size:18px;margin-bottom:16px}
+.timeline{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-top:28px}
+.timeline .eyebrow{margin-bottom:8px}
+.tm-note{flex-basis:100%;font-size:12px;margin-top:4px}
+@media (max-width:900px){.timeline{grid-template-columns:1fr}}
+.tm{font-size:.5em;line-height:0;vertical-align:super;margin-left:1px;font-weight:600}
+.brand .logo{height:30px;width:auto}
+.logo-foot{height:22px;width:auto;flex-basis:100%;max-width:74px}
+.logo-big{width:min(280px,80%);height:auto;margin-top:28px}
