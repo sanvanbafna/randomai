@@ -3,10 +3,10 @@
 The public website for Random AI and the Random Trading App. Plain HTML and CSS, no build step.
 
 ```
-index.html            home and contact
+index.html            home
 random-ai/index.html  Random AI (accounting software)
 trading/index.html    Random Trading App
-assets/               stylesheet, logo and pictures
+assets/               stylesheet, script, logo, pictures and app screenshots (img/screens)
 deploy/               nginx config for the Lightsail server
 ```
 
@@ -20,14 +20,12 @@ then open http://localhost:8080.
 
 ## Hosting
 
-Served by nginx on the AWS Lightsail server in ap-south-1 (Mumbai). The Random Trading App runs on the
-same server on 127.0.0.1:8000 and is reached at `app.DOMAIN`. See `deploy/nginx-site.conf`.
+Served free by GitHub Pages from the `main` branch at https://randomai.in (see `CNAME`).
+Merging a pull request into `main` updates the live site within a minute or two.
 
-Deploying (once the domain is chosen):
+The Random Trading App will run separately on the AWS Lightsail server at `app.randomai.in`.
+`deploy/nginx-site.conf` is kept for that server.
 
-1. Copy this repository's files to `/var/www/random-website` on the server.
-2. Put `deploy/nginx-site.conf` in `/etc/nginx/sites-available/`, replace `DOMAIN`, enable it, `sudo nginx -t && sudo systemctl reload nginx`.
-3. Point the domain's DNS (`@`, `www`, `app`) at the server's static IP.
-4. Add HTTPS with certbot.
+The Download and Subscribe buttons only show a "Launching soon" message for now; nothing is collected.
 
 Nothing secret belongs in this repository: no `.env`, passwords, keys or app data.
