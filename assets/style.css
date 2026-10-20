@@ -85,7 +85,7 @@ footer a{color:var(--muted);margin-left:16px}
 @media (max-width:560px){.features.three{grid-template-columns:1fr}}
 
 .story p{color:var(--muted);font-size:18px;margin-bottom:16px}
-.timeline{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:28px}
+.timeline{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-top:28px}
 .timeline .eyebrow{margin-bottom:8px}
 .tm-note{flex-basis:100%;font-size:12px;margin-top:4px}
 @media (max-width:900px){.timeline{grid-template-columns:1fr}}
