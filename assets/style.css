@@ -1,5 +1,5 @@
 /* Random AI website, Aurora style */
-:root{--bg:#f5faf9;--bg2:#eef6f4;--surface:rgba(255,255,255,.68);--line:rgba(16,80,76,.12);--fg:#10292a;--muted:#4f6b6a;
+:root{color-scheme:only light;--bg:#f5faf9;--bg2:#eef6f4;--surface:rgba(255,255,255,.68);--line:rgba(16,80,76,.12);--fg:#10292a;--muted:#4f6b6a;
 --accent:#0f8a82;--accent2:#ef8a2a;--accent-ink:#ffffff;--display:"Outfit",system-ui,sans-serif;--body:"DM Sans",system-ui,sans-serif;--radius:22px}
 body{background:var(--bg)}
 .aurora{position:absolute;inset:-20% -10% auto -10%;height:780px;z-index:-1;filter:blur(70px);opacity:.75;
@@ -68,7 +68,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
 background:var(--fg);color:var(--bg);padding:14px 20px;border-radius:14px;font-weight:600;max-width:calc(100% - 32px);text-align:center}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 @media (max-width:900px){.hero .wrap,.split{grid-template-columns:1fr}.facts{grid-template-columns:1fr 1fr}.f1{left:8px}.f2{right:8px}}
-@media (max-width:560px){.features{grid-template-columns:1fr}.nav-links a:not(.btn){display:none}section{padding:64px 0}}
+@media (max-width:560px){.features{grid-template-columns:1fr}section{padding:64px 0}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 .nav-links a[aria-current=page]{color:var(--fg)}
 .hero{isolation:isolate}
@@ -93,3 +93,12 @@ footer a{color:var(--muted);margin-left:16px}
 .brand .logo{height:30px;width:auto}
 .logo-foot{height:22px;width:auto;flex-basis:100%;max-width:74px}
 .logo-big{width:min(280px,80%);height:auto;margin-top:28px}
+.nav-links{margin-left:auto}
+@media (max-width:760px){
+  header.nav .wrap{min-height:0;padding-top:10px;padding-bottom:0;gap:10px 12px}
+  .nav-cta{padding:10px 16px;font-size:15px}
+  .nav-links{order:3;width:100%;margin-left:0;gap:6px;flex-wrap:nowrap;overflow-x:auto;padding-bottom:10px;scrollbar-width:none}
+  .nav-links::-webkit-scrollbar{display:none}
+  .nav-links a{white-space:nowrap;padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--fg);font-size:13px}
+  .nav-links a[aria-current=page]{background:var(--accent);color:var(--accent-ink);border-color:transparent}
+}
