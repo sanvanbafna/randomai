@@ -6,6 +6,7 @@ The public website for Random AI and the Random Trading App. Plain HTML and CSS,
 index.html            home
 random-ai/index.html  Random AI (accounting software)
 trading/index.html    Random Trading App
+activation/index.html Activation Code Random XP (links to the live activation form on randomcomputersolutions.github.io)
 about/index.html      About us: company and Random XP history
 assets/               stylesheet, script, logo, pictures and app screenshots (img/screens)
 deploy/               nginx config for the Lightsail server
