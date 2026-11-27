@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Owner — Add Customer</title>
+<link rel="icon" type="image/png" href="logo.png">
+<meta name="robots" content="noindex, nofollow">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: Segoe UI, Arial, sans-serif; color: #1f2933; line-height: 1.6; background: #f2f6fb; min-height: 100vh; }
+  .wrap { max-width: 460px; margin: 0 auto; padding: 30px 20px 60px; }
+  h1 { font-size: 22px; text-align: center; color: #0b4a8b; }
+  .sub { text-align: center; color: #6b7a89; font-size: 14px; margin-bottom: 24px; }
+  .card { background: #fff; border: 1px solid #dde6f0; border-radius: 18px; padding: 22px; }
+  label { display: block; font-size: 14px; color: #52606d; margin: 14px 0 6px; }
+  input { width: 100%; padding: 13px 14px; font-size: 16px; border: 1px solid #c8d4e0; border-radius: 14px; outline: none; }
+  input:focus { border-color: #0b4a8b; box-shadow: 0 0 0 3px #0b4a8b22; }
+  button { width: 100%; margin-top: 22px; padding: 15px; font-size: 16px; font-weight: 600; color: #fff; background: #0b4a8b; border: none; border-radius: 14px; cursor: pointer; }
+  button:hover { background: #0d5aa9; }
+  button:disabled { background: #9fb3c8; cursor: default; }
+  button:focus { outline: none; box-shadow: 0 0 0 3px #0b4a8b55; }
+  .msg { margin-top: 16px; padding: 12px 14px; border-radius: 12px; font-size: 14px; display: none; }
+  .msg.error { background: #fdecec; color: #a32d2d; border: 1px solid #f3c2c2; display: block; }
+  .created { display: none; margin-top: 18px; background: #e9f6ee; border: 1px solid #bfe3cc; border-radius: 14px; padding: 16px; text-align: center; }
+  .created .idbig { font-size: 22px; font-weight: 700; color: #0b4a8b; margin: 6px 0; user-select: all; }
+  .created .note { font-size: 13px; color: #52606d; }
+  .home-link { display: block; text-align: center; margin-top: 22px; font-size: 14px; color: #0b4a8b; text-decoration: none; }
+  #formstage { display: none; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div style="background:#fff; border:1px solid #dde6f0; border-radius:14px; padding:10px 18px; width:fit-content; margin:10px auto 14px;">
+    <img src="logo.png" alt="Random" style="height:42px; display:block;">
+  </div>
+  <h1>Owner area</h1>
+  <p class="sub">Locked — enter your admin PIN to continue</p>
+
+  <div class="card" id="pinstage">
+    <label for="pin">Owner PIN</label>
+    <input id="pin" type="password" placeholder="Your admin PIN" autocomplete="off">
+    <button id="unlock" onclick="unlock()">Unlock</button>
+  </div>
+
+  <div class="card" id="formstage">
+    <label for="cid">User ID <span style="color:#a32d2d;">*</span></label>
+    <input id="cid" type="text" placeholder="ID you assign to this customer" autocomplete="off">
+    <div id="ciderr" style="display:none; color:#a32d2d; font-size:13px; margin-top:6px;"></div>
+
+    <label for="name">Customer name <span style="color:#a32d2d;">*</span></label>
+    <input id="name" type="text" placeholder="Full name" autocomplete="off">
+
+    <label for="phone">Phone (optional)</label>
+    <input id="phone" type="tel" placeholder="Mobile number" autocomplete="off">
+
+    <label for="city">Place (optional)</label>
+    <input id="city" type="text" placeholder="City" autocomplete="off">
+
+    <button id="save" onclick="save()">Save customer</button>
+
+    <div id="created" class="created">
+      <div>&#10004; Customer created</div>
+      <div class="idbig" id="newid"></div>
+      <div class="note">Share this user ID with the customer</div>
+    </div>
+  </div>
+
+  <div class="card" id="paystage" style="display:none; margin-top:18px;">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <div style="font-weight:600; color:#0b4a8b;">Recent payments</div>
+      <a href="#" onclick="loadPayments(); return false;" style="font-size:14px; color:#0b4a8b;">Refresh</a>
+    </div>
+    <div id="paylist" style="font-size:14px; color:#52606d; margin-top:8px;">Loading…</div>
+  </div>
+
+  <div class="card" id="alertstage" style="display:none; margin-top:18px;">
+    <div style="font-weight:600; color:#0b4a8b;">Payment alerts on this phone</div>
+    <div id="alertstatus" style="font-size:14px; color:#52606d; margin-top:6px;">Checking…</div>
+    <button id="alertOn" onclick="enableAlerts()" style="display:none;">Enable payment alerts</button>
+    <button id="alertTest" onclick="testAlert()" style="display:none;">Send test alert</button>
+    <button id="alertOff" onclick="disableAlerts()" style="display:none; background:#6b7a89;">Turn off alerts</button>
+  </div>
+
+  <div id="msg" class="msg"></div>
+
+  <a class="home-link" href="index.html">&#8592; Back to Random Computer Solutions</a>
+</div>
+
+<script>
+var SUPABASE_URL = "https://vbprmqhpdzlgcrwgbwof.supabase.co";
+var ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZicHJtcWhwZHpsZ2Nyd2did29mIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2MzkyNTEsImV4cCI6MjA5ODIxNTI1MX0.-jWJ98Q-TVCTosce48YREhRj8u-TcAlDwrTjDc67Wu0";
+
+var verifiedPin = null;
+
+function showError(t) {
+  var m = document.getElementById("msg");
+  m.className = "msg error";
+  m.style.background = ""; m.style.color = ""; m.style.border = "";
+  m.style.display = "block";
+  m.textContent = t;
+}
+function clearMsg() {
+  var m = document.getElementById("msg");
+  m.className = "msg";
+  m.style.display = "none";
+  m.textContent = "";
+}
+
+async function api(body) {
+  var res = await fetch(SUPABASE_URL + "/functions/v1/add-customer", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + ANON_KEY,
+      "apikey": ANON_KEY
+    },
+    body: JSON.stringify(body)
+  });
+  var data = await res.json();
+  if (!res.ok) throw new Error(data.error || "Something went wrong.");
+  return data;
+}
+
+async function unlock() {
+  clearMsg();
+  var pin = document.getElementById("pin").value.trim();
+  if (!pin) { showError("Enter your PIN."); return; }
+  var btn = document.getElementById("unlock");
+  btn.disabled = true; btn.textContent = "Checking…";
+  try {
+    await api({ pin: pin, verify: true });
+    verifiedPin = pin;
+    document.getElementById("pinstage").style.display = "none";
+    document.getElementById("formstage").style.display = "block";
+    document.querySelector(".sub").textContent = "Add a new customer";
+    document.getElementById("paystage").style.display = "block";
+    document.getElementById("alertstage").style.display = "block";
+    loadPayments();
+    alertsInit();
+    document.getElementById("cid").focus();
+  } catch (e) {
+    showError(e.message);
+  } finally {
+    btn.disabled = false; btn.textContent = "Unlock";
+  }
+}
+
+var cidTaken = false;
+
+async function checkCid() {
+  var cidEl = document.getElementById("cid");
+  var err = document.getElementById("ciderr");
+  var cid = cidEl.value.trim();
+  cidTaken = false;
+  err.style.display = "none";
+  cidEl.style.borderColor = "";
+  if (!cid || !verifiedPin) return;
+  try {
+    var d = await api({ pin: verifiedPin, check_id: cid });
+    if (d.exists) {
+      cidTaken = true;
+      err.textContent = "User ID already exists: " + d.existing_id + " — choose a different ID";
+      err.style.display = "block";
+      cidEl.style.borderColor = "#a32d2d";
+    }
+  } catch (e) { /* save() re-checks on the server anyway */ }
+}
+
+document.getElementById("cid").addEventListener("blur", checkCid);
+document.getElementById("cid").addEventListener("input", function () {
+  cidTaken = false;
+  document.getElementById("ciderr").style.display = "none";
+  this.style.borderColor = "";
+});
+
+async function save() {
+  clearMsg();
+  document.getElementById("created").style.display = "none";
+  var cid = document.getElementById("cid").value.trim();
+  var name = document.getElementById("name").value.trim();
+  if (!cid) { showError("User ID is required."); return; }
+  if (cidTaken) { showError("That user ID already exists. Choose a different one."); return; }
+  if (!name) { showError("Customer name is required."); return; }
+  var btn = document.getElementById("save");
+  btn.disabled = true; btn.textContent = "Saving…";
+  try {
+    var data = await api({
+      pin: verifiedPin,
+      user_id: cid,
+      name: name,
+      phone: document.getElementById("phone").value.trim(),
+      city: document.getElementById("city").value.trim()
+    });
+    document.getElementById("newid").textContent = data.user_id;
+    document.getElementById("created").style.display = "block";
+    document.getElementById("cid").value = "";
+    document.getElementById("name").value = "";
+    document.getElementById("phone").value = "";
+    document.getElementById("city").value = "";
+    document.getElementById("cid").focus();
+  } catch (e) {
+    showError(e.message);
+  } finally {
+    btn.disabled = false; btn.textContent = "Save customer";
+  }
+}
+
+// ---------- Payment alerts (Web Push) ----------
+async function alertApi(body) {
+  var res = await fetch(SUPABASE_URL + "/functions/v1/owner-alerts", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + ANON_KEY,
+      "apikey": ANON_KEY
+    },
+    body: JSON.stringify(body)
+  });
+  var data = await res.json();
+  if (!res.ok) throw new Error(data.error || "Something went wrong.");
+  return data;
+}
+
+async function loadPayments() {
+  var box = document.getElementById("paylist");
+  box.textContent = "Loading…";
+  try {
+    var d = await alertApi({ pin: verifiedPin, action: "recent" });
+    box.textContent = "";
+    if (!d.payments.length) { box.textContent = "No online payments yet."; return; }
+    d.payments.forEach(function (p) {
+      var row = document.createElement("div");
+      row.style.cssText = "display:flex; justify-content:space-between; gap:10px; padding:9px 0; border-top:1px solid #e6edf4;";
+      var left = document.createElement("div");
+      var nm = document.createElement("div");
+      nm.style.cssText = "color:#1f2933; font-weight:600;";
+      nm.textContent = p.name || p.user_id;
+      var sub = document.createElement("div");
+      sub.style.fontSize = "12px";
+      sub.textContent = p.user_id + " · " + new Date(p.at).toLocaleString("en-IN", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" });
+      left.appendChild(nm); left.appendChild(sub);
+      var amt = document.createElement("div");
+      amt.style.cssText = "color:#1e7a46; font-weight:700; white-space:nowrap;";
+      amt.textContent = "₹" + p.amount;
+      row.appendChild(left); row.appendChild(amt);
+      box.appendChild(row);
+    });
+  } catch (e) {
+    box.textContent = "Could not load payments: " + e.message;
+  }
+}
+
+function b64ToU8(s) {
+  s = s.replace(/-/g, "+").replace(/_/g, "/");
+  while (s.length % 4) s += "=";
+  var raw = atob(s), out = new Uint8Array(raw.length);
+  for (var i = 0; i < raw.length; i++) out[i] = raw.charCodeAt(i);
+  return out;
+}
+
+function setAlertUI(state, text) {
+  document.getElementById("alertstatus").textContent = text;
+  document.getElementById("alertOn").style.display = state === "off" ? "block" : "none";
+  document.getElementById("alertTest").style.display = state === "on" ? "block" : "none";
+  document.getElementById("alertOff").style.display = state === "on" ? "block" : "none";
+}
+
+var swReg = null;
+
+async function alertsInit() {
+  if (!("serviceWorker" in navigator) || !("PushManager" in window) || !("Notification" in window)) {
+    setAlertUI("none", "This browser can't show push alerts. On iPhone, add this page to the Home Screen first; on Android use Chrome.");
+    return;
+  }
+  try {
+    swReg = await navigator.serviceWorker.register("sw.js");
+    await navigator.serviceWorker.ready;
+    var sub = await swReg.pushManager.getSubscription();
+    if (sub && Notification.permission === "granted") {
+      var st = await alertApi({ pin: verifiedPin, action: "status", endpoint: sub.endpoint });
+      if (st.subscribed) { setAlertUI("on", "Alerts are ON for this phone."); return; }
+    }
+    setAlertUI("off", "Alerts are OFF on this phone.");
+  } catch (e) {
+    setAlertUI("none", "Alerts unavailable: " + e.message);
+  }
+}
+
+async function enableAlerts() {
+  clearMsg();
+  var btn = document.getElementById("alertOn");
+  btn.disabled = true;
+  try {
+    var perm = await Notification.requestPermission();
+    if (perm !== "granted") throw new Error("Notifications are blocked. Allow them for this site in your browser settings, then try again.");
+    var key = (await alertApi({ pin: verifiedPin, action: "key" })).key;
+    var sub = await swReg.pushManager.getSubscription();
+    if (sub) { try { await sub.unsubscribe(); } catch (e) {} }
+    sub = await swReg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToU8(key) });
+    await alertApi({ pin: verifiedPin, action: "subscribe", subscription: sub.toJSON() });
+    setAlertUI("on", "Alerts are ON for this phone.");
+  } catch (e) {
+    showError(e.message);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function testAlert() {
+  clearMsg();
+  var btn = document.getElementById("alertTest");
+  btn.disabled = true;
+  try {
+    var r = await alertApi({ pin: verifiedPin, action: "test" });
+    if (!r.sent) showError("No alert was delivered. Turn alerts off and on again.");
+  } catch (e) {
+    showError(e.message);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function disableAlerts() {
+  clearMsg();
+  try {
+    var sub = await swReg.pushManager.getSubscription();
+    if (sub) {
+      await alertApi({ pin: verifiedPin, action: "unsubscribe", endpoint: sub.endpoint });
+      await sub.unsubscribe();
+    }
+    setAlertUI("off", "Alerts are OFF on this phone.");
+  } catch (e) {
+    showError(e.message);
+  }
+}
+
+document.getElementById("pin").addEventListener("keydown", function (e) {
+  if (e.key === "Enter") unlock();
+});
+
+var order = ["cid", "name", "phone", "city"];
+order.forEach(function (id, i) {
+  document.getElementById(id).addEventListener("keydown", function (e) {
+    if (e.key !== "Enter") return;
+    e.preventDefault();
+    if (i < order.length - 1) {
+      document.getElementById(order[i + 1]).focus();
+    } else {
+      // Last field: move focus to the Save button; the NEXT Enter saves.
+      document.getElementById("save").focus();
+    }
+  });
+});
+</script>
+
+</body>
+</html>
